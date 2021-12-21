@@ -1,5 +1,6 @@
 import win32com.client as client
 from PIL import Image, ImageFont, ImageDraw
+import textwrap
 
 
 outlook = client.Dispatch("Outlook.Application")
@@ -9,13 +10,26 @@ message.To = "arthur.ravin@gmail.com"
 message.BCC = "arthur_ravin@hotmail.com"
 message.Subject = "Feliz Aniversário!"
 
+
 my_image = Image.open(
     "C:\\Users\\Ravin\\Desktop\\send_email_python\\parabensind.jpg")
-title_font = ImageFont.truetype(
+
+title_text = "Raphael, este é seu dia, e por isso deve festejar com alegria. Espero que receba muito carinho, homenagens e surpresas boas. Parabéns e muitas felicidades!"
+lines = textwrap.wrap(title_text, width=40)
+y_text = 100
+
+font = ImageFont.truetype(
     'C:\\Users\\Ravin\\Desktop\\send_email_python\\BebasNeue-Regular.ttf', 32)
-title_text = "Arthur de Castro, este é seu dia, e por isso deve festejar com alegria. Espero que receba muito carinho, homenagens e surpresas boas. Parabéns e muitas felicidades! "
 image_editable = ImageDraw.Draw(my_image)
-image_editable.text((15, 15), title_text, (237, 230, 211), font=title_font)
+
+
+for line in lines:
+    width, height = font.getsize(line)
+    image_editable.text(((450 - width) / 2, y_text),
+                        line, font=font, fill="white")
+    y_text += height
+
+
 my_image.save("result.jpg")
 
 
