@@ -4,6 +4,10 @@ from PIL import Image, ImageFont, ImageDraw
 import textwrap
 import pandas as pd
 import datetime
+from datetime import timedelta
+import numpy as np
+from collections import OrderedDict
+
 
 
 codeAndName = {3: 'AG AEROPORTO PRESIDENTE JK, DF',
@@ -76,6 +80,33 @@ codeAndName = {3: 'AG AEROPORTO PRESIDENTE JK, DF',
                }
 
 
+saturdayBirth = datetime.date.today() + timedelta(days=1)
+sundayBirth = datetime.date.today() + timedelta(days=2)
+
+def ExistingDayOfTheWeek(list):
+    foo = []
+    daysInWeek = {"Segunda":[], "Terça":[], "Quarta":[], "Quinta":[], "Sexta":[], "Sábado":[], "Domingo":[]}
+
+    for person in list:
+        personDay = person['dayOfTheWeek']
+
+        for dayIndex, day in enumerate(daysInWeek):
+            if personDay == dayIndex:
+                daysInWeek[day].append(person)
+                break
+
+    for day in daysInWeek:
+        if len(daysInWeek[day]) > 0:
+            foo.append(day) 
+            for person in daysInWeek[day]:
+                attr = person['name'] + ' - ' + codeAndName[person['unity']]
+                foo.append(attr)  
+            
+    return foo
+
+
+
+
 da = datetime.date.today().strftime("%d/%m/%Y")
 outlook = client.Dispatch("Outlook.Application")
 
@@ -83,10 +114,10 @@ outlook = client.Dispatch("Outlook.Application")
 phrase = ['A Felicidade merece ser compartilhada']
 
 df = pd.read_excel(
-    r"C:\Users\Ravin\Desktop\send_email_coletivo\Empregados.xlsx", sheet_name='DataBase')
+    r"Empregados.xlsx", sheet_name='DataBase')
 
 ass = pd.read_excel(
-    r"C:\Users\Ravin\Desktop\send_email_coletivo\Empregados.xlsx", sheet_name='Assinatura')
+    r"Empregados.xlsx", sheet_name='Assinatura')
 
 
 srName = ass['Assinatura'][0]
@@ -95,53 +126,66 @@ office = ass['Assinatura'][3]
 
 textAss = srName + '\n' + office + '\n' + srEntity
 
-# df["dte_Nascimento_Empregado"] = pd.to_datetime(df["dte_Nascimento_Empregado"])
 
 df = df[['Str_Mat_Outlook', 'str_Nome_Empregado',
          'int_CodLotacao_Empregado', 'dte_Nascimento_Empregado']]
 
-dataFullList = [{}]
-data_list = [{}]
+# dataFullList = [{}]
+data_list = []
 for i in range(len(df)):
+    if datetime.date.weekday(datetime.date.today()) == 4:
+        if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == saturdayBirth.strftime('%m-%d'):
+            data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
+                "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 5})
+        if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == sundayBirth.strftime('%m-%d'):
+            data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
+                "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 6})
     if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == datetime.date.today().strftime('%m-%d'):
         data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
-            "%m-%d"), "name": df['str_Nome_Empregado'][i], "unity": df['int_CodLotacao_Empregado'][i], "mat": df['Str_Mat_Outlook'][i]})
-    if df['Str_Mat_Outlook'][i] == 'c150713;':
-        dataFullList.append({"mat": df['Str_Mat_Outlook'][i]})
+            "%m-%d"), "name": df['str_Nome_Empregado'][i], "unity": df['int_CodLotacao_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "dayOfTheWeek": datetime.date.weekday(datetime.date.today())})
 
-print(dataFullList)
-index = 1
 
+index = 0
 my_image = Image.open(
-    "C:\\Users\\Ravin\\Desktop\\send_email_coletivo\\coletivo.jpg")
+    "coletivo.jpg")
 
 title_text = []
 font = ImageFont.truetype(
-    'C:\\Users\\Ravin\\Desktop\\send_email_coletivo\\BebasNeue-Regular.ttf', 16)
-# image_editable = ImageDraw.Draw(my_image)
-while index < len(data_list):
-    title_text.append(data_list[index]["name"] + '                               '
-                      + codeAndName[data_list[index]['unity']])
-    index = index + 1
+    'BebasNeue-Regular.ttf', 16)
+
+fontWeekDay = ImageFont.truetype(
+    'BebasNeue-Regular.ttf', 22)
+
+
+
+sortedList = sorted(data_list, key=lambda x: x['dayOfTheWeek'])
+
+
+title_text =  ExistingDayOfTheWeek(sortedList)
 
 
 fontAss = ImageFont.truetype(
-    'C:\\Users\\Ravin\\Desktop\\send_email_coletivo\\BebasNeue-Regular.ttf', 18)
+    'BebasNeue-Regular.ttf', 18)
 
 
 image_editable = ImageDraw.Draw(my_image)
 
 i = 0
-y = 200
+y = 100
+# width2, height2 = font.getsize(dayWeekText[0])
+
+
+# image_editable.text(((800 - width2) / 3, y-30),
+#                     dayWeekText[0], font=fontWeekDay, fill="white", stroke_width=1, stroke_fill="white", align="baseline")
 while i < len(title_text):
-    lines = textwrap.wrap(title_text[i], width=250)
+    lines = textwrap.wrap(title_text[i], width=400)
     for line in lines:
+        # print(line)
         width, height = font.getsize(line)
-        image_editable.text(((600 - width) / 3, y),
-                            line, font=font, fill="white", stroke_width=0, stroke_fill="white", align="left")
+        image_editable.text(((800 - width) / 3, y),
+                            line.title(), font=font, fill="white", stroke_width=0, stroke_fill="white", align="baseline")
         y += height * 1.5
     i = i + 1
-
 
 my_image.save("result.png", optimize=True, quality=100)
 # while j < len(data_list):
@@ -153,7 +197,7 @@ my_image.save("result.png", optimize=True, quality=100)
 
 # html_body = """
 #     <div>
-#         <img src="C:\\Users\\Ravin\\Desktop\\send_email_coletivo\\result.png">
+#         <img src="result.png">
 #     </div>
 #     """
 # message.HTMLBody = html_body
