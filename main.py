@@ -5,10 +5,8 @@ import textwrap
 import pandas as pd
 import datetime
 from datetime import timedelta
-import numpy as np
 from collections import OrderedDict
-
-
+import numpy as np
 
 codeAndName = {3: 'AG AEROPORTO PRESIDENTE JK, DF',
                4: 'AG BERNARDO SAYAO, DF',
@@ -77,15 +75,23 @@ codeAndName = {3: 'AG AEROPORTO PRESIDENTE JK, DF',
                5295: 'SEV PARACATU',
                5731: 'SEV GAMA',
                2637: 'SR Brasília Sul',
+               7590: "FORUM"
                }
 
 
 saturdayBirth = datetime.date.today() + timedelta(days=1)
 sundayBirth = datetime.date.today() + timedelta(days=2)
+sundayBirth2 = datetime.date.today() + timedelta(days=3)
+sundayBirth3 = datetime.date.today() + timedelta(days=4)
+sundayBirth4 = datetime.date.today() + timedelta(days=5)
+sundayBirth5 = datetime.date.today() + timedelta(days=6)
+sundayBirth6 = datetime.date.today() + timedelta(days=7)
+
 
 def ExistingDayOfTheWeek(list):
     foo = []
-    daysInWeek = {"Segunda":[], "Terça":[], "Quarta":[], "Quinta":[], "Sexta":[], "Sábado":[], "Domingo":[]}
+    daysInWeek = {"Segunda": [], "Terça": [], "Quarta": [],
+                  "Quinta": [], "Sexta": [], "Sábado": [], "Domingo": []}
 
     for person in list:
         personDay = person['dayOfTheWeek']
@@ -97,14 +103,12 @@ def ExistingDayOfTheWeek(list):
 
     for day in daysInWeek:
         if len(daysInWeek[day]) > 0:
-            foo.append(day) 
+            foo.append(day)
             for person in daysInWeek[day]:
                 attr = person['name'] + ' - ' + codeAndName[person['unity']]
-                foo.append(attr)  
-            
+                foo.append(attr)
+
     return foo
-
-
 
 
 da = datetime.date.today().strftime("%d/%m/%Y")
@@ -133,21 +137,28 @@ df = df[['Str_Mat_Outlook', 'str_Nome_Empregado',
 # dataFullList = [{}]
 data_list = []
 for i in range(len(df)):
-    if datetime.date.weekday(datetime.date.today()) == 4:
-        if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == saturdayBirth.strftime('%m-%d'):
-            data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
-                "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 5})
-        if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == sundayBirth.strftime('%m-%d'):
-            data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
-                "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 6})
-    if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == datetime.date.today().strftime('%m-%d'):
+    # if datetime.date.weekday(datetime.date.today()) == 4:
+    if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == saturdayBirth.strftime('%m-%d'):
         data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
-            "%m-%d"), "name": df['str_Nome_Empregado'][i], "unity": df['int_CodLotacao_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "dayOfTheWeek": datetime.date.weekday(datetime.date.today())})
+            "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 3})
+    # if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == sundayBirth2.strftime('%m-%d'):
+    #     data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
+    #         "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 2})
+    # if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == sundayBirth3.strftime('%m-%d'):
+    #     data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
+    #         "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 1})
+    # if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == sundayBirth.strftime('%m-%d'):
+    #     data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
+    #         "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 4})
+    # if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == datetime.date.today().strftime('%m-%d'):
+    #     data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
+    #         "%m-%d"), "name": df['str_Nome_Empregado'][i], "unity": df['int_CodLotacao_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "dayOfTheWeek": datetime.date.weekday(datetime.date.today())})
 
 
 index = 0
 my_image = Image.open(
     "coletivo.jpg")
+
 
 title_text = []
 font = ImageFont.truetype(
@@ -157,11 +168,10 @@ fontWeekDay = ImageFont.truetype(
     'BebasNeue-Regular.ttf', 22)
 
 
-
 sortedList = sorted(data_list, key=lambda x: x['dayOfTheWeek'])
 
 
-title_text =  ExistingDayOfTheWeek(sortedList)
+title_text = ExistingDayOfTheWeek(sortedList)
 
 
 fontAss = ImageFont.truetype(
@@ -171,20 +181,25 @@ fontAss = ImageFont.truetype(
 image_editable = ImageDraw.Draw(my_image)
 
 i = 0
-y = 100
+y = 175
 # width2, height2 = font.getsize(dayWeekText[0])
 
 
 # image_editable.text(((800 - width2) / 3, y-30),
 #                     dayWeekText[0], font=fontWeekDay, fill="white", stroke_width=1, stroke_fill="white", align="baseline")
 while i < len(title_text):
+
     lines = textwrap.wrap(title_text[i], width=400)
     for line in lines:
-        # print(line)
+
         width, height = font.getsize(line)
+        print(len(title_text))
         image_editable.text(((800 - width) / 3, y),
                             line.title(), font=font, fill="white", stroke_width=0, stroke_fill="white", align="baseline")
-        y += height * 1.5
+        print(((height * 1.5) / (len(title_text))))
+        y += height * \
+            2 if len(title_text) < 6 else (
+                ((height * 19) / (len(title_text))))
     i = i + 1
 
 my_image.save("result.png", optimize=True, quality=100)
