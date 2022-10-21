@@ -1,12 +1,9 @@
-from random import randint
 import win32com.client as client
 from PIL import Image, ImageFont, ImageDraw
 import textwrap
 import pandas as pd
 import datetime
 from datetime import timedelta
-from collections import OrderedDict
-import numpy as np
 
 codeAndName = {3: 'AG AEROPORTO PRESIDENTE JK, DF',
                4: 'AG BERNARDO SAYAO, DF',
@@ -79,13 +76,7 @@ codeAndName = {3: 'AG AEROPORTO PRESIDENTE JK, DF',
                }
 
 
-saturdayBirth = datetime.date.today() + timedelta(days=1)
-sundayBirth = datetime.date.today() + timedelta(days=2)
-sundayBirth2 = datetime.date.today() + timedelta(days=3)
-sundayBirth3 = datetime.date.today() + timedelta(days=4)
-sundayBirth4 = datetime.date.today() + timedelta(days=5)
-sundayBirth5 = datetime.date.today() + timedelta(days=6)
-sundayBirth6 = datetime.date.today() + timedelta(days=7)
+
 
 
 def ExistingDayOfTheWeek(list):
@@ -134,30 +125,18 @@ textAss = srName + '\n' + office + '\n' + srEntity
 df = df[['Str_Mat_Outlook', 'str_Nome_Empregado',
          'int_CodLotacao_Empregado', 'dte_Nascimento_Empregado']]
 
-# dataFullList = [{}]
+
 data_list = []
 for i in range(len(df)):
     # if datetime.date.weekday(datetime.date.today()) == 4:
     if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == saturdayBirth.strftime('%m-%d'):
         data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
             "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 3})
-    # if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == sundayBirth2.strftime('%m-%d'):
-    #     data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
-    #         "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 2})
-    # if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == sundayBirth3.strftime('%m-%d'):
-    #     data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
-    #         "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 1})
-    # if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == sundayBirth.strftime('%m-%d'):
-    #     data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
-    #         "%m-%d"), "name": df['str_Nome_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "unity": df['int_CodLotacao_Empregado'][i], "dayOfTheWeek": 4})
-    # if df['dte_Nascimento_Empregado'][i].strftime("%m-%d") == datetime.date.today().strftime('%m-%d'):
-    #     data_list.append({"birthDate": df['dte_Nascimento_Empregado'][i].strftime(
-    #         "%m-%d"), "name": df['str_Nome_Empregado'][i], "unity": df['int_CodLotacao_Empregado'][i], "mat": df['Str_Mat_Outlook'][i], "dayOfTheWeek": datetime.date.weekday(datetime.date.today())})
 
 
 index = 0
 my_image = Image.open(
-    "coletivo.jpg")
+    "images/coletivo.jpg")
 
 
 title_text = []
