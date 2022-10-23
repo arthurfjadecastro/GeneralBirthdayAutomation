@@ -1,0 +1,22 @@
+def ExistingDayOfTheWeek(list):
+    foo = []
+    daysInWeek = {"Segunda": [], "Terça": [], "Quarta": [],
+                  "Quinta": [], "Sexta": [], "Sábado": [], "Domingo": []}
+
+    for person in list:
+        personDay = person['dayOfTheWeek']
+
+        for dayIndex, day in enumerate(daysInWeek):
+            if personDay == dayIndex:
+                daysInWeek[day].append(person)
+                break
+
+    for day in daysInWeek:
+        if len(daysInWeek[day]) > 0:
+            foo.append(day)
+            for person in daysInWeek[day]:
+                attr = person['name'] + ' - ' + codeAndName[person['unity']]
+                foo.append(attr)
+
+    return foo
+
