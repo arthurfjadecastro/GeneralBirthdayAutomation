@@ -3,12 +3,38 @@ from PIL import Image, ImageFont, ImageDraw
 import pandas as pd
 import os
 import math
+from datetime import date
+
+
+def convertText(text):
+    # print(text[0][1])
+    DIAS = [
+        'Segunda-feira',
+        'Terça-feira',
+        'Quarta-feira',
+        'Quinta-Feira',
+        'Sexta-feira',
+        'Sábado',
+        'Domingo'
+    ]
+    concat1 = text[0] + text[1]
+    concat2 = text[3] + text[4]
+    # print(concat2)
+    year = date.today().strftime('%Y')
+    data = date(year=int(year), month=int(concat2), day=int(concat1))
+    indice_da_semana = data.weekday()
+    dia_da_semana = DIAS[indice_da_semana]
+    return dia_da_semana
+
 
 # Create Absolute Path
 file_path = os.path.abspath(os.path.dirname(__file__))
 absolutPath = "\"" + \
               file_path.replace("\\", "\\\\") + "\\\\result.png" + "\""
 
+
+# absolutPathExcel = "\"" + \
+#               file_path.replace("\\", "\"") + "\"" + "sisrh" + "\"" + "Empregados.xlsx" + "\""
 
 def received(mats):
     text = ""
@@ -19,6 +45,13 @@ def received(mats):
 
 outlook = client.Dispatch("Outlook.Application")
 
+# print(absolutPathExcel)
+
+# df = pd.read_excel(
+#     absolutPathExcel,
+#     sheet_name='DataBase')
+
+
 df = pd.read_excel(
     r"C:\Users\Arthur\Desktop\analisar t\workspace\send_leyman_email_coletivo\sisrh\Empregados.xlsx",
     sheet_name='DataBase')
@@ -28,7 +61,8 @@ df = df[['Nome', 'Data', 'Matrícula', "Unidade"]]
 #
 data_list = []
 for i in range(len(df)):
-    data_list.append({"Matrícula": df['Matrícula'][i], "Nome": df["Nome"][i], "Unidade": df["Unidade"][i]})
+    data_list.append(
+        {"Matrícula": df['Matrícula'][i], "Nome": df["Nome"][i], "Unidade": df["Unidade"][i], "Data": df['Data'][i]})
 
 j = 0
 
@@ -44,13 +78,37 @@ sec_half = mats[half_length:]
 
 n = 0
 nam = []
+nameData = []
 while n < len(data_list):
     nam.append(data_list[n]["Nome"] + "  -  " + data_list[n]["Unidade"] + "\n\n")
+    nameData.append(data_list[n]["Data"])
+    nameData.append(data_list[n]["Nome"])
     n += 1
+result = {}
+foo = []
+players = []
+for n, g in df.groupby("Data"):
+    foo.append(convertText(str(n)) + "\n")
+    for x in g.values:
+        if (n == x[1]):
+            foo.append(x[0] + "  -  " + x[3] + "\n\n")
+
+
+    if n in result:
+        result[n] += g.values.tolist()  # ...se sim, concatena a lista em result com a lista obtida do grupo.
+    else:
+        result[
+            n] = g.values.tolist()  # ...se não, cria a chave em result e adiciona a lista obtida do grupo como valor.
+
+first_value = list(result.keys())
+second = list(result.values())
+
+
+
+foo2 = received(foo)
 
 matriculas1 = received(first_half)
 matriculas2 = received(sec_half)
-names = received(nam)
 
 matriculas = []
 matriculas.append(matriculas1)
@@ -74,11 +132,10 @@ while i < 2:
         font = ImageFont.truetype(
             'C:\\Users\\Arthur\\Desktop\\analisar t\\workspace\\send_leyman_email_coletivo\\fonts\\BebasNeue-Regular.ttf',
             14)
-        size = font.getsize_multiline(names)
+        size = font.getsize_multiline(str(foo2))
         font_size -= 1
-        image_editable.multiline_text((box[0], box[1]), names, font=font, align="center", fill="white",
-                                      stroke_fill="white",
-                                      spacing=2)
+        image_editable.multiline_text((box[0], box[1]), str(foo2), font=font, align="center", fill="white",
+                                      stroke_fill="white")
 
     # Save image final result
     my_image.save("C:\\Users\\Arthur\\Desktop\\analisar t\\workspace\\send_leyman_email_coletivo\\result.png",
@@ -91,5 +148,3 @@ while i < 2:
                """
     message.HTMLBody = html_body
     i += 1
-
-
