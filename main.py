@@ -53,16 +53,16 @@ outlook = client.Dispatch("Outlook.Application")
 
 
 df = pd.read_excel(
-    r"C:\Users\Arthur\Desktop\analisar t\workspace\send_leyman_email_coletivo\sisrh\Empregados.xlsx",
-    sheet_name='DataBase')
+    r"C:\Users\Arthur\Desktop\analisar t\workspace\send_leyman_email_coletivo\sisrh\Busca_SISRH_SR2637.xlsm",
+    sheet_name='Dados')
 
-df = df[['Nome', 'Data', 'Matrícula', "Unidade"]]
+df = df[['Name', 'Data', 'Matrícula', "Unidade"]]
 
 #
 data_list = []
 for i in range(len(df)):
     data_list.append(
-        {"Matrícula": df['Matrícula'][i], "Nome": df["Nome"][i], "Unidade": df["Unidade"][i], "Data": df['Data'][i]})
+        {"Matrícula": df['Matrícula'][i], "Name": df["Name"][i], "Unidade": df["Unidade"][i], "Data": df['Data'][i]})
 
 j = 0
 
@@ -76,34 +76,19 @@ half_length = math.ceil(len(mats) / 2)
 first_half = mats[:half_length]
 sec_half = mats[half_length:]
 
-n = 0
-nam = []
-nameData = []
-while n < len(data_list):
-    nam.append(data_list[n]["Nome"] + "  -  " + data_list[n]["Unidade"] + "\n\n")
-    nameData.append(data_list[n]["Data"])
-    nameData.append(data_list[n]["Nome"])
-    n += 1
 result = {}
 foo = []
-players = []
 for n, g in df.groupby("Data"):
     foo.append(convertText(str(n)) + "\n")
     for x in g.values:
         if (n == x[1]):
             foo.append(x[0] + "  -  " + x[3] + "\n\n")
 
-
     if n in result:
         result[n] += g.values.tolist()  # ...se sim, concatena a lista em result com a lista obtida do grupo.
     else:
         result[
             n] = g.values.tolist()  # ...se não, cria a chave em result e adiciona a lista obtida do grupo como valor.
-
-first_value = list(result.keys())
-second = list(result.values())
-
-
 
 foo2 = received(foo)
 
@@ -118,7 +103,7 @@ i = 0
 while i < 2:
     message = outlook.CreateItem(0)
     message.BCC = matriculas[i]
-    message.Subject = "Feliz Aniversário - Parabenize seus colegas! 🎉🎈🎁"
+    message.Subject = "Parabenize seus colegas - Feliz Aniversário 🎉🎈🎁"
     message.Display()
     # Get original image
     my_image = Image.open(
