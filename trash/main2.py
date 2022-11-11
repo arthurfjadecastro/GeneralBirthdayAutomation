@@ -19,7 +19,7 @@ def convertText(text):
     ]
     concat1 = text[0] + text[1]
     concat2 = text[3] + text[4]
-
+    # print(concat2)
     year = date.today().strftime('%Y')
     data = date(year=int(year), month=int(concat2), day=int(concat1))
     indice_da_semana = data.weekday()
@@ -29,31 +29,40 @@ def convertText(text):
 
 # Create Absolute Path
 file_path = os.path.abspath(os.path.dirname(__file__))
-
-htmlAbsoluteImagePath = "\"" + file_path.replace("\\", "\\\\") + "\\\\images\\\\result.png\""
-
-sisrhPath = file_path + "\\sisrh\\Busca_SISRH_SR2637.xlsm"
-
-coletivoJPGPath = file_path + "\\images\\coletivo.jpg"
-
-fontBebasNeueTTFPath = file_path + "\\fonts\\BebasNeue-Regular.ttf"
-
-finalImagePath = file_path + "\\images\\result.png"
+absolutPath = "\"" + \
+              file_path.replace("\\", "\\\\") + "\\\\result.png" + "\""
 
 
-def received(matriculas):
+# absolutPathExcel = "\"" + \
+#               file_path.replace("\\", "\"") + "\"" + "sisrh" + "\"" + "Empregados.xlsx" + "\""
+
+def received(mats):
     text = ""
-    for x in matriculas:
-        text += x
+    for x in mats:
+        text += str(x)
     return text
 
 
 outlook = client.Dispatch("Outlook.Application")
 
+# print(absolutPathExcel)
 
-df = pd.read_excel(sisrhPath, sheet_name='Dados')
+# df = pd.read_excel(
+#     absolutPathExcel,
+#     sheet_name='DataBase')
+
+
+df = pd.read_excel(
+    r"C:\Users\c150713\OneDrive - Caixa Economica Federal\Área de Trabalho\coletivo-automate\send_leyman_email_coletivo\sisrh\Busca_SISRH_SR2637.xlsm",
+    sheet_name='Dados')
+
+ass = pd.read_excel(
+    r"C:\Users\c150713\OneDrive - Caixa Economica Federal\Área de Trabalho\coletivo-automate\send_leyman_email_coletivo\sisrh\Busca_SISRH_SR2637.xlsm",
+    sheet_name='Assinatura')
 
 df = df[['Name', 'Data', 'Matrícula', "Unidade"]]
+
+srName = ass['Assinatura'][0]
 
 #
 data_list = []
@@ -63,15 +72,15 @@ for i in range(len(df)):
 
 j = 0
 
-matriculas = []
+mats = []
 
 while j < len(data_list):
-    matriculas.append(data_list[j]["Matrícula"])
+    mats.append(data_list[j]["Matrícula"])
     j += 1
 
-half_length = math.ceil(len(matriculas) / 2)
-first_half = matriculas[:half_length]
-sec_half = matriculas[half_length:]
+half_length = math.ceil(len(mats) / 2)
+first_half = mats[:half_length]
+sec_half = mats[half_length:]
 
 result = {}
 foo = []
@@ -99,29 +108,38 @@ matriculas.append(matriculas2)
 i = 0
 while i < 2:
     message = outlook.CreateItem(0)
+    message.to = "sr2637df@caixa.gov.br"
     message.BCC = matriculas[i]
     message.Subject = "Parabenize seus colegas - Feliz Aniversário 🎉🎈🎁"
     message.Display()
     # Get original image
-    my_image = Image.open(coletivoJPGPath)
-    box = ((100, 175, 490, 400))
+    my_image = Image.open(
+        "C:\\Users\\c150713\\OneDrive - Caixa Economica Federal\\Área de Trabalho\\coletivo-automate\\send_leyman_email_coletivo\\images\\coletivo.jpg")
+    box = ((75, 150, 490, 400))
     image_editable = ImageDraw.Draw(my_image)
-
+    fontAss = ImageFont.truetype(
+        'C:\\Users\\c150713\\OneDrive - Caixa Economica Federal\\Área de Trabalho\\coletivo-automate\\send_leyman_email_coletivo\\fonts\\BebasNeue-Regular.ttf',
+        24)
     font_size = 100
     size = None
     while (size is None or size[0] > box[2] - box[0] or size[1] > box[3] - box[1]) and font_size > 0:
-        font = ImageFont.truetype(fontBebasNeueTTFPath, 14)
+        font = ImageFont.truetype(
+            'C:\\Users\\c150713\\OneDrive - Caixa Economica Federal\\Área de Trabalho\\coletivo-automate\\send_leyman_email_coletivo\\fonts\\BebasNeue-Regular.ttf',
+            16)
         size = font.getsize_multiline(str(foo2))
         font_size -= 1
-        image_editable.multiline_text((box[0], box[1]), str(foo2), font=font, align="center", fill="white",
-                                      stroke_fill="white")
+        image_editable.multiline_text((box[0], box[1]), str(foo2), font=font, align="left", fill="white")
+        # stroke_fill = "white"
 
+    image_editable.text((115, 610),
+                        text=str(srName), fill="white", font=fontAss, anchor="ls")
     # Save image final result
-    my_image.save(finalImagePath, optimize=True, quality=100)
-
+    my_image.save(
+        "C:\\Users\\c150713\\OneDrive - Caixa Economica Federal\\Área de Trabalho\\coletivo-automate\\send_leyman_email_coletivo\\result.png",
+        optimize=True, quality=100)
     html_body = f"""
                <div>
-                   <img src={htmlAbsoluteImagePath}>
+                   <img src={absolutPath}>
                </div> 
                """
     message.HTMLBody = html_body
